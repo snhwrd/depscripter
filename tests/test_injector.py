@@ -1,0 +1,49 @@
+from depscripter.injector import generate_script_metadata, inject_metadata
+import re
+
+def test_generate_metadata():
+    deps = {"requests": "2.31.0", "numpy": None}
+    metadata = generate_script_metadata(deps, python_requires=">=3.9")
+    
+    assert "# /// script" in metadata
+    assert '# requires-python = ">=3.9"' in metadata
+    assert "# dependencies = [" in metadata
+    assert '#     "requests==2.31.0",' in metadata
+    assert '#     "numpy",' in metadata
+    assert "# ///" in metadata
+
+def test_inject_simple():
+    code = "import requests\nprint('hello')"
+    metadata = "# /// script\n# ///"
+    
+    injected = inject_metadata(code, metadata)
+    assert injected.startswith("# /// script")
+    assert "import requests" in injected
+    
+def test_inject_preserve_shebang():
+    code = "#!/usr/bin/env python3\nimport requests"
+    metadata = "# /// script\n# ///"
+    
+    injected = inject_metadata(code, metadata)
+    lines = injected.splitlines()
+    assert lines[0] == "#!/usr/bin/env python3"
+    assert lines[1] == "# /// script"
+
+def test_inject_preserve_encoding():
+    code = "# -*- coding: utf-8 -*-\nimport requests"
+    metadata = "# /// script\n# ///"
+    
+    injected = inject_metadata(code, metadata)
+    lines = injected.splitlines()
+    assert lines[0].startswith("# -*- coding")
+    assert lines[1] == "# /// script"
+
+def test_inject_preserve_shebang_and_encoding():
+    code = "#!/usr/bin/env python3\n# -*- coding: utf-8 -*-\nimport requests"
+    metadata = "# /// script\n# ///"
+    
+    injected = inject_metadata(code, metadata)
+    lines = injected.splitlines()
+    assert lines[0] == "#!/usr/bin/env python3"
+    assert lines[1].startswith("# -*- coding")
+    assert lines[2] == "# /// script"
