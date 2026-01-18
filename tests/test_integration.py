@@ -79,3 +79,21 @@ def test_integration_no_pin(tmp_path):
     output = result.stdout
     assert '"pytest",' in output  # format is "pkg",
     assert "pytest==" not in output
+
+def test_integration_output_option(tmp_path):
+    """
+    Test --output option.
+    """
+    script = tmp_path / "output_test_in.py"
+    script.write_text("import pytest", encoding="utf-8")
+    outfile = tmp_path / "output_test_out.py"
+    
+    result = run_depscripter([str(script), "-o", str(outfile)])
+    assert result.returncode == 0
+    
+    assert outfile.exists()
+    content = outfile.read_text(encoding="utf-8")
+    assert "# /// script" in content
+    assert "pytest==" in content
+    # check original unchaged
+    assert script.read_text(encoding="utf-8") == "import pytest"

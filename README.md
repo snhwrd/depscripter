@@ -25,6 +25,9 @@ depscripter script.py
 # Modify the file in-place
 depscripter script.py --in-place
 
+# Save output to a specific file
+depscripter script.py -o output.py
+
 # Disable version pinning (just list packages)
 depscripter script.py --no-pin
 ```
