@@ -66,4 +66,23 @@ def test_cli_python_version_option(tmp_path):
              
              main()
              
-             mock_gen.assert_called_with({"requests": None}, python_requires=">=3.11")
+             main()
+             
+             mock_gen.assert_called_with({"requests": None}, python_requires=">=3.11", overrides={})
+
+def test_cli_manual_option(tmp_path):
+    f = tmp_path / "script.py"
+    f.write_text("import requests", encoding="utf-8")
+    
+    with patch("sys.argv", ["depscripter", str(f), "--manual", "requests>=2.0", "--manual", "pandas"]):
+        with patch("depscripter.cli.scan_imports", return_value={"requests"}), \
+             patch("depscripter.cli.resolve_packages", return_value={"requests": "2.31.0"}), \
+             patch("depscripter.cli.generate_script_metadata") as mock_gen, \
+             patch("depscripter.cli.inject_metadata"):
+             
+             main()
+             
+             call_kwargs = mock_gen.call_args.kwargs
+             overrides = call_kwargs['overrides']
+             assert overrides["requests"] == ">=2.0"
+             assert overrides["pandas"] == "" # no specifier

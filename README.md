@@ -31,6 +31,9 @@ depscripter script.py -o output.py
 # Specify python version requirement
 depscripter script.py --python ">=3.9"
 
+# Manually specify dependencies (override or add)
+depscripter script.py --manual "numpy>=2.0" --manual "pandas"
+
 # Disable version pinning (just list packages)
 depscripter script.py --no-pin
 ```

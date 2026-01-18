@@ -12,6 +12,18 @@ def test_generate_metadata():
     assert '#     "numpy",' in metadata
     assert "# ///" in metadata
 
+def test_generate_metadata_overrides():
+    deps = {"requests": "2.31.0"}
+    overrides = {"requests": ">=2.30.0", "extra": ""}
+    
+    metadata = generate_script_metadata(deps, overrides=overrides)
+    
+    assert '"requests>=2.30.0"' in metadata
+    assert '"requests==2.31.0"' not in metadata
+    
+    # Extra package added
+    assert '"extra"' in metadata
+
 def test_inject_simple():
     code = "import requests\nprint('hello')"
     metadata = "# /// script\n# ///"

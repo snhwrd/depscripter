@@ -2,26 +2,41 @@ import re
 import sys
 from typing import Dict, Optional
 
-def generate_script_metadata(dependencies: Dict[str, Optional[str]], python_requires: Optional[str] = None) -> str:
+
+def generate_script_metadata(dependencies: Dict[str, Optional[str]], python_requires: Optional[str] = None, overrides: Optional[Dict[str, str]] = None) -> str:
     """
     Generates the PEP 723 metadata block.
+    
+    overrides: Dictionary of package name -> version specifier (e.g. ">=2.0")
     """
     if python_requires is None:
         # Default to current running python version major.minor
         v = sys.version_info
         python_requires = f">={v.major}.{v.minor}"
+    
+    if overrides is None:
+        overrides = {}
 
     lines = []
     lines.append("# /// script")
     lines.append(f'# requires-python = "{python_requires}"')
     lines.append("# dependencies = [")
     
-    sorted_deps = sorted(dependencies.items())
-    for pkg, version in sorted_deps:
-        if version:
-            lines.append(f'#     "{pkg}=={version}",')
+    # Merge keys from dependencies and overrides
+    all_packages = set(dependencies.keys()) | set(overrides.keys())
+    sorted_deps = sorted(all_packages)
+    
+    for pkg in sorted_deps:
+        if pkg in overrides:
+            # Use manual override specifier
+            spec = overrides[pkg]
+            lines.append(f'#     "{pkg}{spec}",')
         else:
-            lines.append(f'#     "{pkg}",')
+            version = dependencies[pkg]
+            if version:
+                lines.append(f'#     "{pkg}=={version}",')
+            else:
+                lines.append(f'#     "{pkg}",')
             
     lines.append("# ]")
     lines.append("# ///")
