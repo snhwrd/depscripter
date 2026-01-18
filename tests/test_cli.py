@@ -70,6 +70,20 @@ def test_cli_python_version_option(tmp_path):
              
              mock_gen.assert_called_with({"requests": None}, python_requires=">=3.11", overrides={})
 
+def test_cli_python_version_exact(tmp_path):
+    f = tmp_path / "script.py"
+    f.write_text("import requests", encoding="utf-8")
+    
+    with patch("sys.argv", ["depscripter", str(f), "--python", "3.10"]):
+        with patch("depscripter.cli.scan_imports", return_value={"requests"}), \
+             patch("depscripter.cli.resolve_packages", return_value={"requests": None}), \
+             patch("depscripter.cli.generate_script_metadata") as mock_gen, \
+             patch("depscripter.cli.inject_metadata"):
+             
+             main()
+             
+             mock_gen.assert_called_with({"requests": None}, python_requires="3.10", overrides={})
+
 def test_cli_manual_option(tmp_path):
     f = tmp_path / "script.py"
     f.write_text("import requests", encoding="utf-8")
