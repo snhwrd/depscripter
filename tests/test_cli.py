@@ -53,3 +53,17 @@ def test_cli_output_option(tmp_path):
     
     assert out.read_text(encoding="utf-8") == "# /// metadata\nimport requests"
     assert f.read_text(encoding="utf-8") == "import requests" # original unchanged
+
+def test_cli_python_version_option(tmp_path):
+    f = tmp_path / "script.py"
+    f.write_text("import requests", encoding="utf-8")
+    
+    with patch("sys.argv", ["depscripter", str(f), "--python", ">=3.11"]):
+        with patch("depscripter.cli.scan_imports", return_value={"requests"}), \
+             patch("depscripter.cli.resolve_packages", return_value={"requests": None}), \
+             patch("depscripter.cli.generate_script_metadata", return_value="metadata") as mock_gen, \
+             patch("depscripter.cli.inject_metadata", return_value="output"):
+             
+             main()
+             
+             mock_gen.assert_called_with({"requests": None}, python_requires=">=3.11")

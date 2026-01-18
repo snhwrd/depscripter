@@ -10,6 +10,7 @@ def main():
     parser = argparse.ArgumentParser(description="Add PEP 723 metadata to Python scripts.")
     parser.add_argument("file", type=Path, help="Path to the Python script")
     parser.add_argument("--no-pin", action="store_true", help="Do not pin package versions")
+    parser.add_argument("-p", "--python", help="Specify strict python version requirement (e.g. '>=3.9')")
     
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--in-place", action="store_true", help="Modify the file in-place")
@@ -29,7 +30,7 @@ def main():
     dependencies = resolve_packages(modules, pin_versions=not args.no_pin)
     
     # Generate metadata
-    metadata = generate_script_metadata(dependencies)
+    metadata = generate_script_metadata(dependencies, python_requires=args.python)
     
     # Inject
     new_source = inject_metadata(source_code, metadata)

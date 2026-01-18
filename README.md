@@ -28,6 +28,9 @@ depscripter script.py --in-place
 # Save output to a specific file
 depscripter script.py -o output.py
 
+# Specify python version requirement
+depscripter script.py --python ">=3.9"
+
 # Disable version pinning (just list packages)
 depscripter script.py --no-pin
 ```
