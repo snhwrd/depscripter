@@ -1,6 +1,6 @@
-# Depscripter
+# depscripter
 
-Depscripter is a zero-dependency CLI tool and library that automatically adds [PEP 723](https://peps.python.org/pep-0723/) inline script metadata to Python scripts. It scans imports, resolves installed versions from the current environment, and injects the appropriate metadata block.
+depscripter is a zero-dependency CLI tool and library that automatically adds [PEP 723](https://peps.python.org/pep-0723/) inline script metadata to Python scripts. It scans imports, resolves installed versions from the current environment, and injects the appropriate metadata block.
 
 ## Installation
 
