@@ -24,6 +24,32 @@ def test_generate_metadata_overrides():
     # Extra package added
     assert '"extra"' in metadata
 
+def test_inject_replace_existing():
+    old_metadata = "# /// script\n# requires-python = \">=3.8\"\n# dependencies = [\n#     \"requests==2.31.0\",\n# ]\n# ///"
+    new_metadata = "# /// script\n# requires-python = \">=3.8\"\n# dependencies = [\n#     \"requests==2.32.0\",\n# ]\n# ///"
+    code = f"{old_metadata}\nimport requests\nprint('hello')"
+    
+    result = inject_metadata(code, new_metadata)
+    
+    assert new_metadata in result
+    assert old_metadata not in result
+    assert "import requests" in result
+    # Ensure it didn't add extra separation newlines if just replacing
+    assert result.count("# /// script") == 1
+
+def test_inject_replace_with_shebang():
+    shebang = "#!/usr/bin/env python3\n"
+    old_metadata = "# /// script\n# requires-python = \">=3.8\"\n# dependencies = [\n#     \"requests==2.31.0\",\n# ]\n# ///\n"
+    new_metadata = "# /// script\n# requires-python = \">=3.8\"\n# dependencies = [\n#     \"requests==2.32.0\",\n# ]\n# ///"
+    code = f"{shebang}{old_metadata}import requests"
+    
+    result = inject_metadata(code, new_metadata)
+    
+    assert result.startswith(shebang)
+    assert new_metadata in result
+    assert old_metadata not in result
+    assert result.count("# /// script") == 1
+
 def test_inject_simple():
     code = "import requests\nprint('hello')"
     metadata = "# /// script\n# ///"
