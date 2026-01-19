@@ -24,6 +24,20 @@ def test_generate_metadata_overrides():
     # Extra package added
     assert '"extra"' in metadata
 
+def test_generate_metadata_python_uv_normalization():
+    deps = {}
+    # Bare version -> >=
+    metadata = generate_script_metadata(deps, python_requires="3.8")
+    assert 'requires-python = ">=3.8"' in metadata
+    
+    # Explicit == -> preserved
+    metadata = generate_script_metadata(deps, python_requires="==3.12")
+    assert 'requires-python = "==3.12"' in metadata
+    
+    # Explicit >= -> preserved
+    metadata = generate_script_metadata(deps, python_requires=">=3.9")
+    assert 'requires-python = ">=3.9"' in metadata
+
 def test_inject_replace_existing():
     old_metadata = "# /// script\n# requires-python = \">=3.8\"\n# dependencies = [\n#     \"requests==2.31.0\",\n# ]\n# ///"
     new_metadata = "# /// script\n# requires-python = \">=3.8\"\n# dependencies = [\n#     \"requests==2.32.0\",\n# ]\n# ///"

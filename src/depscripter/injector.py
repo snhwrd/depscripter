@@ -13,6 +13,9 @@ def generate_script_metadata(dependencies: Dict[str, Optional[str]], python_requ
         # Default to current running python version major.minor
         v = sys.version_info
         python_requires = f">={v.major}.{v.minor}"
+    elif python_requires and python_requires[0].isdigit():
+        # Prepend >= if it's just a version number (uv convention)
+        python_requires = f">={python_requires}"
     
     if overrides is None:
         overrides = {}
